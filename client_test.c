@@ -6,7 +6,6 @@
 int main(void)
 {
   xcb_connection_t    *c;
-  xcb_screen_t        *s;
   xcb_window_t         w;
   xcb_gcontext_t       g;
   xcb_generic_event_t *e;
@@ -15,13 +14,15 @@ int main(void)
   int                  done = 0;
   xcb_rectangle_t      r = { 20, 20, 60, 60 };
  
-                        /* open connection with the server */
-  c = xcb_connect(NULL,NULL);
+  // open connection with the server
+  int screenNum;
+  c = xcb_connect(NULL,&screenNum);
   if (xcb_connection_has_error(c)) {
     printf("Cannot open display\n");
     exit(1);
   }
 
+  printf( "We are screen %i", screenNum );
   const xcb_setup_t* setup = xcb_get_setup(c);
   printf( "XCB Setup:\n"
 	"status : %i\n"
@@ -45,10 +46,24 @@ int main(void)
 		setup->pixmap_formats_len, setup->image_byte_order, setup->bitmap_format_bit_order,
 		setup->bitmap_format_scanline_unit, setup->bitmap_format_scanline_pad );
 
-                        /* get the first screen */
-  s = xcb_setup_roots_iterator( xcb_get_setup(c) ).data;
+  ///* get the first screen
+  xcb_screen_iterator_t iter = xcb_setup_roots_iterator( xcb_get_setup(c) );
+  for( int i = 0; i < screenNum; ++i ) xcb_screen_next(&iter);
+
+  xcb_screen_t* s = iter.data;
+  printf( "\n\nScreen stats:\n"
+    "width: %i     height: %i\n"
+    "minMaps: %i   maxMaps: %i\n"
+    "backingStores: %i    saveUnders: %i\n"
+    "root_depth: %i   allowedDepths: %i\n"
+    "root_visual: %i  root: %i\n"
+    "def cmap: %i   curMask: %i\n"
+    "white: %i   black: %i\n", s->width_in_pixels, s->height_in_pixels,
+      s->min_installed_maps, s->max_installed_maps, s->backing_stores,
+      s->save_unders, s->root_depth, s->allowed_depths_len, s->default_colormap,
+      s->current_input_masks, s->white_pixel, s->black_pixel );
  
-                       /* create black graphics context */
+  ///* create black graphics context
   g = xcb_generate_id(c);
   w = s->root;
   mask = XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES;
@@ -56,7 +71,7 @@ int main(void)
   values[1] = 0;
   xcb_create_gc(c, g, w, mask, values);
  
-                       /* create window */
+  ///* create window
   w = xcb_generate_id(c);
   mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
   values[0] = s->white_pixel;
@@ -66,25 +81,27 @@ int main(void)
                     XCB_WINDOW_CLASS_INPUT_OUTPUT, s->root_visual,
                     mask, values);
  
-                        /* map (show) the window */
+  ///* map (show) the window 
   xcb_map_window(c, w);
  
   xcb_flush(c);
- 
-                        /* event loop */
+/* 
+                        // event loop
   while (!done && (e = xcb_wait_for_event(c))) {
     switch (e->response_type & ~0x80) {
-    case XCB_EXPOSE:    /* draw or redraw the window */
+    case XCB_EXPOSE:    // draw or redraw the window
       xcb_poly_fill_rectangle(c, w, g,  1, &r);
       xcb_flush(c);
       break;
-    case XCB_KEY_PRESS:  /* exit on key press */
+    case XCB_KEY_PRESS:  // exit on key press
       done = 1;
       break;
     }
     free(e);
   }
-                        /* close connection to server */
+*/
+
+  ///* close connection to server */
   xcb_disconnect(c);
  
   return 0;
