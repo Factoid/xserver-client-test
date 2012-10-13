@@ -22,23 +22,16 @@ int main(void)
     exit(1);
   }
 
-  printf( "We are screen %i", screenNum );
+  printf( "We are screen %i\n", screenNum );
   const xcb_setup_t* setup = xcb_get_setup(c);
   printf( "XCB Setup:\n"
-	"status : %i\n"
-	"pro major : %i\n"
-	"pro minor : %i\n"
-	"len : %i\n"
-	"rel# : %i\n"
-	"res_id_base : %i\n"
-	"res_id_mask : %i\n"
-	"mot buf size : %i\n"
-	"ven_len : %i\n"
-	"max req len : %i\n"
-	"roots_len : %i\n"
-	"image_byte_order : %i\n"
-	"bitmap bit order : %i\n"
-	"bitmap scan unit : %i\n"
+	"status : %i 		pro major : %i\n"
+	"pro minor : %i		len : %i\n"
+	"rel# : %i			res_id_base : %x\n"
+	"res_id_mask : %x	mot buf size : %i\n"
+	"ven_len : %i		max req len : %i\n"
+	"roots_len : %i		image_byte_order : %i\n"
+	"bitmap bit order : %i	bitmap scan unit : %i\n"
 	"bitmap scan pad : %i\n", setup->status, setup->protocol_major_version,
 		setup->protocol_minor_version, setup->length, setup->release_number,
 		setup->resource_id_base, setup->resource_id_mask, setup->motion_buffer_size,
@@ -51,30 +44,31 @@ int main(void)
   for( int i = 0; i < screenNum; ++i ) xcb_screen_next(&iter);
 
   xcb_screen_t* s = iter.data;
-  printf( "\n\nScreen stats:\n"
+  printf( "\nScreen stats:\n"
     "width: %i     height: %i\n"
     "minMaps: %i   maxMaps: %i\n"
     "backingStores: %i    saveUnders: %i\n"
     "root_depth: %i   allowedDepths: %i\n"
     "root_visual: %i  root: %i\n"
-    "def cmap: %i   curMask: %i\n"
-    "white: %i   black: %i\n", s->width_in_pixels, s->height_in_pixels,
+    "def cmap: %i   curMask: %x\n"
+    "white: %x   black: %x\n", s->width_in_pixels, s->height_in_pixels,
       s->min_installed_maps, s->max_installed_maps, s->backing_stores,
-      s->save_unders, s->root_depth, s->allowed_depths_len, s->default_colormap,
-      s->current_input_masks, s->white_pixel, s->black_pixel );
+      s->save_unders, s->root_depth, s->allowed_depths_len, s->root_visual,
+      s->root, s->default_colormap, s->current_input_masks, s->white_pixel, 
+      s->black_pixel );
  
   ///* create black graphics context
   g = xcb_generate_id(c);
   w = s->root;
   mask = XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES;
-  values[0] = s->black_pixel;
+  values[0] = 0xFFFF00;//s->white_pixel;//black_pixel;
   values[1] = 0;
   xcb_create_gc(c, g, w, mask, values);
  
   ///* create window
   w = xcb_generate_id(c);
   mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-  values[0] = s->white_pixel;
+  values[0] = s->black_pixel;//white_pixel;
   values[1] = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_KEY_PRESS;
   xcb_create_window(c, s->root_depth, w, s->root,
                     10, 10, 100, 100, 1,
@@ -83,10 +77,9 @@ int main(void)
  
   ///* map (show) the window 
   xcb_map_window(c, w);
- 
   xcb_flush(c);
-/* 
-                        // event loop
+  
+  // event loop
   while (!done && (e = xcb_wait_for_event(c))) {
     switch (e->response_type & ~0x80) {
     case XCB_EXPOSE:    // draw or redraw the window
@@ -99,8 +92,6 @@ int main(void)
     }
     free(e);
   }
-*/
-
   ///* close connection to server */
   xcb_disconnect(c);
  
