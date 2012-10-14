@@ -25,13 +25,13 @@ int main(void)
   printf( "We are screen %i\n", screenNum );
   const xcb_setup_t* setup = xcb_get_setup(c);
   printf( "XCB Setup:\n"
-	"status : %i 		pro major : %i\n"
-	"pro minor : %i		len : %i\n"
-	"rel# : %i			res_id_base : %x\n"
-	"res_id_mask : %x	mot buf size : %i\n"
-	"ven_len : %i		max req len : %i\n"
-	"roots_len : %i		image_byte_order : %i\n"
-	"bitmap bit order : %i	bitmap scan unit : %i\n"
+	"status : %i\t\tpro major : %i\n"
+	"pro minor : %i\t\tlen : %i\n"
+	"rel# : %i\t\tres_id_base : %x\n"
+	"res_id_mask : %x\tmot buf size : %i\n"
+	"ven_len : %i\t\tmax req len : %i\n"
+	"roots_len : %i\t\timage_byte_order : %i\n"
+	"bitmap bit order : %i\tbitmap scan unit : %i\n"
 	"bitmap scan pad : %i\n", setup->status, setup->protocol_major_version,
 		setup->protocol_minor_version, setup->length, setup->release_number,
 		setup->resource_id_base, setup->resource_id_mask, setup->motion_buffer_size,
@@ -45,13 +45,13 @@ int main(void)
 
   xcb_screen_t* s = iter.data;
   printf( "\nScreen stats:\n"
-    "width: %i     height: %i\n"
-    "minMaps: %i   maxMaps: %i\n"
-    "backingStores: %i    saveUnders: %i\n"
-    "root_depth: %i   allowedDepths: %i\n"
-    "root_visual: %i  root: %i\n"
-    "def cmap: %i   curMask: %x\n"
-    "white: %x   black: %x\n", s->width_in_pixels, s->height_in_pixels,
+    "width: %i\t\theight: %i\n"
+    "minMaps: %i\t\tmaxMaps: %i\n"
+    "backingStores: %i\tsaveUnders: %i\n"
+    "root_depth: %i\t\tallowedDepths: %i\n"
+    "root_visual: %i\t\troot: %i\n"
+    "def cmap: %i\t\tcurMask: %x\n"
+    "white: %x\t\tblack: %x\n", s->width_in_pixels, s->height_in_pixels,
       s->min_installed_maps, s->max_installed_maps, s->backing_stores,
       s->save_unders, s->root_depth, s->allowed_depths_len, s->root_visual,
       s->root, s->default_colormap, s->current_input_masks, s->white_pixel, 
