@@ -51,12 +51,33 @@ int main(void)
     "root_depth: %i\t\tallowedDepths: %i\n"
     "root_visual: %i\t\troot: %i\n"
     "def cmap: %i\t\tcurMask: %x\n"
-    "white: %x\t\tblack: %x\n", s->width_in_pixels, s->height_in_pixels,
+    "white: %x\t\tblack: %x\n\n", s->width_in_pixels, s->height_in_pixels,
       s->min_installed_maps, s->max_installed_maps, s->backing_stores,
       s->save_unders, s->root_depth, s->allowed_depths_len, s->root_visual,
       s->root, s->default_colormap, s->current_input_masks, s->white_pixel, 
       s->black_pixel );
- 
+
+  xcb_depth_iterator_t depthIterator = xcb_screen_allowed_depths_iterator(s);
+  for( int i = 0; i < s->allowed_depths_len; ++i )
+  {
+    xcb_depth_t *depth = depthIterator.data;
+    printf( "Depth entry %i\n"
+      "depth: %i\t\t\tvisuals_len: %i\n", i, depth->depth, depth->visuals_len );
+    xcb_depth_next(&depthIterator);
+
+    xcb_visualtype_iterator_t visIterator = xcb_depth_visuals_iterator(depth);
+    for( int j = 0; j < depth->visuals_len; ++j )
+    {
+      xcb_visualtype_t* vis = visIterator.data;
+      printf( "\tVisual Entry %i\n"
+        "\tvisID : %i\t\tclass : %i\n"
+        "\tbpp : %i\t\t\tcolormap_entries : %i\n"
+        "\tredMask : %x\tgreenMask : %x\n"
+        "\tblueMask : %x\n", j, vis->visual_id, vis->_class, vis->bits_per_rgb_value, vis->colormap_entries, vis->red_mask, vis->green_mask, vis->blue_mask );
+      xcb_visualtype_next(&visIterator);
+    } 
+  }
+
   ///* create black graphics context
   g = xcb_generate_id(c);
   w = s->root;
@@ -80,6 +101,7 @@ int main(void)
   xcb_flush(c);
   
   // event loop
+/*
   while (!done && (e = xcb_wait_for_event(c))) {
     switch (e->response_type & ~0x80) {
     case XCB_EXPOSE:    // draw or redraw the window
@@ -92,6 +114,9 @@ int main(void)
     }
     free(e);
   }
+*/
+
+  printf("\n"); 
   ///* close connection to server */
   xcb_disconnect(c);
  
