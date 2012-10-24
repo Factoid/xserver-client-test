@@ -1,6 +1,7 @@
 #include <xcb/xcb.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 // Initial main function from wikipedia article on XCB 
 int main(void)
@@ -99,14 +100,15 @@ int main(void)
   ///* map (show) the window 
   xcb_map_window(c, w);
   xcb_flush(c);
-  
   // event loop
-/*
   while (!done && (e = xcb_wait_for_event(c))) {
+    printf( "Got event %i (%x)\n", e->response_type, e->response_type );
     switch (e->response_type & ~0x80) {
     case XCB_EXPOSE:    // draw or redraw the window
-      xcb_poly_fill_rectangle(c, w, g,  1, &r);
-      xcb_flush(c);
+      printf( "Exposing window!\n" );
+        xcb_poly_fill_rectangle(c, w, g,  1, &r);
+        xcb_flush(c);
+//      done = 1;
       break;
     case XCB_KEY_PRESS:  // exit on key press
       done = 1;
@@ -114,9 +116,10 @@ int main(void)
     }
     free(e);
   }
-*/
-
-  printf("\n"); 
+  
+  printf( "Sleeping 4 sec...\n" );
+  sleep(4);
+  
   ///* close connection to server */
   xcb_disconnect(c);
  
